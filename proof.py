@@ -1,19 +1,23 @@
-import pyodbc 
-# Some other example server values are
-# server = 'localhost\sqlexpress' # for a named instance
-# server = 'myserver,port' # to specify an alternate port
-server = 'VEGA\SQLEXPRESS' 
-database = 'Dev_DB' 
-username = 'LanceDev' 
-password = 'asdTest123' 
-cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
-cursor = cnxn.cursor()
-print('Connected')
+# import pyodbc 
+# server = 'VEGA\SQLEXPRESS' 
+# database = 'Dev_DB' 
+# username = 'LanceDev' 
+# password = 'asdTest123' 
+# cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
+# cursor = cnxn.cursor()
+# print('Connected')
 
-#Sample select query
-cursor.execute("SELECT @@version;") 
-print(cursor.fetchone())
-# row = cursor.fetchone() 
-# while row: 
-#     print(row[0])
-#     row = cursor.fetchone()
+# #Sample select query
+# cursor.execute("SELECT @@version;") 
+# print(cursor.fetchone())
+
+
+
+##############################################################################################################################################################################################################################
+
+import requests
+
+
+r = requests.put("http://127.0.0.1:8000/items/1", {"name": "string", "price": 0, "is_offer": True })
+print(r.status_code, r.reason)
+print(r.text[:300] + '...')

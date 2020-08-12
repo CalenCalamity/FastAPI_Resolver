@@ -1,15 +1,25 @@
 import DOI as DOI_Entity
 import uuid
 
-from SQL import SQL #Temp meassure till we get postgres going
-
+from SQL import SQL #Temp meassure
 from typing import Optional
-
 from fastapi import FastAPI
+from pydantic import BaseModel
 
 app = FastAPI()
  
 resolveURL = "http://app01.saeon.ac.za/get.aspx?guid=";
+
+#Experimental
+class Item(BaseModel): #Needs to become DOI Entity Model
+    name: str
+    price: float
+    is_offer: Optional[bool] = None
+
+@app.put("/items/{item_id}") #Needs to replace the get for the DOI although maybe keep the get foir the existing services
+def update_item(item_id: int, item: Item):
+    return {"item_name": item.name, "item_id": item_id, "Stat": "Response!"}
+
 
 @app.get('/')
 def home():

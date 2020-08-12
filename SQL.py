@@ -9,7 +9,7 @@ class SQL:
     global cnxn
     global cursor
 
-    if false:   #insert a environment variable check here 
+    if False:   #insert a environment variable check here 
         cnxn = psycopg2.connect(user = username, #"sysadmin",
                                       password = password, # "pynative@#29",
                                       host = server, #"127.0.0.1",
@@ -41,14 +41,14 @@ class SQL:
                 return result
             else:
                 return [0]
-        else if type == "guid":
+        elif type == "guid":
             cursor.execute("SELECT TOP 1 * FROM TblDOI WHERE fGUID = '" + value + "'") 
             result = cursor.fetchone()
             if result:
                 return result
             else:
                 return [0]
-        else if type == "pkID":
+        elif type == "pkID":
             cursor.execute("SELECT TOP 1 * FROM TblDOI WHERE fDOIID = '" + value + "'") 
             result = cursor.fetchone()
             if result:
@@ -71,7 +71,7 @@ class SQL:
 
 
     def update_doi(DOI_Post):
-        cursor.execute("UPDATE TblDOI SET fUserName = '" + DOI_Post.username + "', fPortalName = '" + DOI_Post.portalname + "', fXML = '" + DOI_Post.xml + "', fView = '" + DOI_Post.view + "', fGUID = '" + DOI_Post.GUID + "' WHERE fDOI = '" + DOI_Post.DOI "'")
+        cursor.execute("UPDATE TblDOI SET fUserName = '" + DOI_Post.username + "', fPortalName = '" + DOI_Post.portalname + "', fXML = '" + DOI_Post.xml + "', fView = '" + DOI_Post.view + "', fGUID = '" + DOI_Post.GUID + "' WHERE fDOI = '" + DOI_Post.DOI + "'")
         cnxn.commit()
 
         result = self.get_by_doi(DOI_Post.DOI)[0]
