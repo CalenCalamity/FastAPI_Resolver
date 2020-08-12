@@ -1,6 +1,7 @@
 import pyodbc
+import psycopg2
 
-class MSSQL:
+class SQL:
     global server
     global database
     global username
@@ -8,17 +9,26 @@ class MSSQL:
     global cnxn
     global cursor
 
-    server = 'VEGA\SQLEXPRESS' 
-    database = 'RESOLVER' 
-    username = 'LanceDev' 
-    password = 'asdTest123' 
-    
-    cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
+    if false:   #insert a environment variable check here 
+        cnxn = psycopg2.connect(user = username, #"sysadmin",
+                                      password = password, # "pynative@#29",
+                                      host = server, #"127.0.0.1",
+                                      port = "5432",
+                                      database = database) #"postgres_db")
+
+    else:
+        server = 'VEGA\SQLEXPRESS' 
+        database = 'RESOLVER' 
+        username = 'LanceDev' 
+        password = 'asdTest123' 
+        
+        cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
+
     cursor = cnxn.cursor()
 
-    def run_raw_sql(self, query):
+    def run_raw_sql(query):
         #Execute the SQL
-        cursor.execute("SELECT @@version;")
+        cursor.execute(query)
         return cursor.fetchone()
 
 

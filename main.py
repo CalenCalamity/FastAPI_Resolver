@@ -1,7 +1,7 @@
 import DOI as DOI_Entity
 import uuid
 
-from MSSQL import MSSQL #Temp meassure till we get postgres going
+from SQL import SQL #Temp meassure till we get postgres going
 
 from typing import Optional
 
@@ -27,7 +27,7 @@ def regdoi(doi: Optional[str] = ""):
 
     #Check if DOI exists
     #DOI_Exists = session.query(DOI_Entity).filter_by(DOI=DOI_Post.DOI).one()
-    DOI_Exists = MSSQL.get_by("doi", doi)[0] #Set the rec ID
+    DOI_Exists = SQL.get_by("doi", doi)[0] #Set the rec ID
 
     return {"doiid": DOI_Exists}
 
@@ -42,7 +42,7 @@ def regdoi(doi: Optional[str] = ""):
         # session.commit()
         # inserted_Id = session.query(DOI_Entity).filter_by(DOI=DOI_Post.DOI).one()
 
-        inserted_Id = MSSQL.insert_doi(DOI_Post)
+        inserted_Id = SQL.insert_doi(DOI_Post)
     else:
         #Update an existing DOI
         '''
@@ -53,7 +53,7 @@ def regdoi(doi: Optional[str] = ""):
         # session._update_impl(DOI_Post)
         # session.commit()
         # inserted_Id = session.query(DOI_Entity).filter_by(DOI=DOI_Post.DOI).one()
-        inserted_Id = MSSQL.update_doi(DOI_Post)
+        inserted_Id = SQL.update_doi(DOI_Post)
     
     #Select the relevant GUID by the DOI_Exists Id
     '''
@@ -62,7 +62,7 @@ def regdoi(doi: Optional[str] = ""):
     '''
 
     #session.query(DOI_Entity).filter_by(key=institution.parent_key).one() if institution.parent_key else None
-    return {"GUID" : MSSQL.get_by("pkID", inserted_Id)}
+    return {"GUID" : SQL.get_by("pkID", inserted_Id)}
 
 
 @app .get("/get/{GUID}")
