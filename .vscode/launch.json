@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Uvicorn",
+            "type": "python",
+            "request": "launch",
+            "python.pythonPath": "${workspaceFolder}/.venv/bin/python",
+            "program": "main.py",
+            //"program": "${file}",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        }
+    ]
+}

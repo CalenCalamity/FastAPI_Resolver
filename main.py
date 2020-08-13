@@ -1,24 +1,27 @@
-import DOI as DOI_Entity
 import uuid
+import uvicorn
 
 from SQL import SQL #Temp meassure
 from typing import Optional
 from fastapi import FastAPI
 from pydantic import BaseModel
+from Models.DOI import DOI
 
 app = FastAPI()
  
 resolveURL = "http://app01.saeon.ac.za/get.aspx?guid=";
 
-#Experimental
-class Item(BaseModel): #Needs to become DOI Entity Model
-    name: str
-    price: float
-    is_offer: Optional[bool] = None
+@app.put("/DOI") #Needs to replace the get for the DOI although maybe keep the get for the existing services
+async def update_item(DOI_Put: DOI):
+    #return {"Put" : DOI_Put.username}
+    result = SQL().update_doi(DOI_Put)
+    return {"Updated ID" : result}
 
-@app.put("/items/{item_id}") #Needs to replace the get for the DOI although maybe keep the get foir the existing services
-def update_item(item_id: int, item: Item):
-    return {"item_name": item.name, "item_id": item_id, "Stat": "Response!"}
+
+@app.post('/DOI')
+async def create_institution(DOI_Post: DOI):
+    result = SQL().insert_doi(DOI_Post)
+    return {"Inserted Id" : result}
 
 
 @app.get('/')
@@ -37,7 +40,7 @@ def regdoi(doi: Optional[str] = ""):
 
     #Check if DOI exists
     #DOI_Exists = session.query(DOI_Entity).filter_by(DOI=DOI_Post.DOI).one()
-    DOI_Exists = SQL.get_by("doi", doi)[0] #Set the rec ID
+    DOI_Exists = SQL().get_by("doi", doi)[0] #Set the rec ID
 
     return {"doiid": DOI_Exists}
 
@@ -45,34 +48,34 @@ def regdoi(doi: Optional[str] = ""):
         #Insert a new DOI
         '''
         Response.Write("add doi<br>");
-        sql.insert("TblDOI");
+        SQL().insert("TblDOI");
         id = GetDOIID(con, doi);
         '''
         # session.add(DOI_Post)
         # session.commit()
         # inserted_Id = session.query(DOI_Entity).filter_by(DOI=DOI_Post.DOI).one()
 
-        inserted_Id = SQL.insert_doi(DOI_Post)
+        inserted_Id = SQL().insert_doi(DOI_Post)
     else:
         #Update an existing DOI
         '''
         Response.Write("edit doi<br>");
-        sql.where("fDOIID", id);
-        sql.edit("TblDOI");
+        SQL().where("fDOIID", id);
+        SQL().edit("TblDOI");
         '''
         # session._update_impl(DOI_Post)
         # session.commit()
         # inserted_Id = session.query(DOI_Entity).filter_by(DOI=DOI_Post.DOI).one()
-        inserted_Id = SQL.update_doi(DOI_Post)
+        inserted_Id = SQL().update_doi(DOI_Post)
     
     #Select the relevant GUID by the DOI_Exists Id
     '''
-    sql.add("fDOIID", id);
-    guid = sql.select("TblDOI", "fGUID").ToString();
+    SQL().add("fDOIID", id);
+    guid = SQL().select("TblDOI", "fGUID").ToString();
     '''
 
     #session.query(DOI_Entity).filter_by(key=institution.parent_key).one() if institution.parent_key else None
-    return {"GUID" : SQL.get_by("pkID", inserted_Id)}
+    return {"GUID" : SQL().get_by("pkID", inserted_Id)}
 
 
 @app .get("/get/{GUID}")
@@ -88,3 +91,7 @@ async def get_uuid(GUID: uuid.UUID):
 
     view_URL = session.query(DOI_Entity).filter_by(UUID=GUID).one()
     return view_URL 
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="127.0.0.1", port=8000)
