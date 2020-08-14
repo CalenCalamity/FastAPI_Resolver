@@ -113,43 +113,44 @@ class SQL:
             return ["Error has occured"]
 
 
+    def add_doi_to_db(self, doi, user, portal, xml, view):
+        rec_id = self.get_by("doi", doi)
 
+        if rec_id != None:
+            DOI_Insert = DOI(
+                doiID = rec_id,
+                doi = doi,
+                user_name = user,
+                portal_name = portal,
+                xml = xml,
+                view = view,
+                guid = uuid.uuid4()
+                )
+            
+            self.update_doi(DOI_Insert)
+        else:
+            DOI_Insert = DOI(
+                doiID = 0,
+                doi = doi,
+                user_name = user,
+                portal_name = portal,
+                xml = xml,
+                view = view,
+                guid = uuid.uuid4()
+                )
+            
+            self.insert_doi(DOI_Insert)
+        
+        result = self.get_by("doi", doi)
+        
+        DOI_Return = DOI(
+            doiID = result[0],
+            doi = result[1],
+            user_name = result[2],
+            portal_name = result[3],
+            xml = result[4],
+            view = result[5],
+            guid = result[6]
+        )
 
-protected string AddDOIToDB(String doi, String user, String portal, String xml, String view)
-{
-    string guid = "";
-    
-    using (SqlConnection con = new SqlConnection(System.Configuration.ConfigurationManager.AppSettings["Database"]))
-    {
-        con.Open();
-        
-        int id = GetDOIID(con, doi);
-        
-        
-        SuperSQL sql = new SuperSQL(con, null, Response);
-        sql.add("fDOI", doi);
-        sql.add("fUserName", user);
-        sql.add("fPortalName", portal);
-        sql.add("fXML", xml);
-        sql.add("fView", view);
-        
-        if (id == 0)
-        {
-            Response.Write("add doi<br>");
-            sql.insert("TblDOI");
-            id = GetDOIID(con, doi);
-        }
-        else
-        {
-            Response.Write("edit doi<br>");
-            sql.where("fDOIID", id);
-            sql.edit("TblDOI");
-        }
-        
-        sql.clear();
-        sql.add("fDOIID", id);
-        guid = sql.select("TblDOI", "fGUID").ToString();
-    }
-    
-    return guid;
-}
+        return DOI_Return 

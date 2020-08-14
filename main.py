@@ -26,7 +26,6 @@ async def register_doi(DOI: str):
     return { "Result": DOI }
 
 
-
 @app.post('/reg_doi_xml')
 async def register_doi_xml(DOI: str):
     return { "Result": DOI }
