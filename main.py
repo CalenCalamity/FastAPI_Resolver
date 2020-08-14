@@ -9,24 +9,40 @@ from Models.DOI import DOI
 
 app = FastAPI()
  
-resolveURL = "http://app01.saeon.ac.za/get.aspx?guid=";
+resolveURL = "http://app01.saeon.ac.za/get.aspx?guid="
 
 @app.put("/DOI") #Needs to replace the get for the DOI although maybe keep the get for the existing services
 async def update_item(DOI_Put: DOI):
-    #return {"Put" : DOI_Put.username}
-    result = SQL().update_doi(DOI_Put)
-    return {"Updated ID" : result}
+    return SQL().update_doi(DOI_Put)
 
 
 @app.post('/DOI')
 async def create_institution(DOI_Post: DOI):
-    result = SQL().insert_doi(DOI_Post)
-    return {"Inserted Id" : result}
+    return SQL().insert_doi(DOI_Post)
+
+
+@app.post('/reg_doi')
+async def register_doi(DOI: str):
+    return { "Result": DOI }
+
+
+
+@app.post('/reg_doi_xml')
+async def register_doi_xml(DOI: str):
+    return { "Result": DOI }
+
+
+@app.post('/resolve')
+async def resolve(DOI: str):
+    return { "Result": DOI }
 
 
 @app.get('/')
 def home():
     return {"Status": "Home!"}
+
+
+#Here we will keep all our get requests to accomadate the legacy dependencies
 
 @app.get('/getdoi/')
 def regdoi(doi: Optional[str] = ""):
@@ -93,5 +109,6 @@ async def get_uuid(GUID: uuid.UUID):
     return view_URL 
 
 
+#For Debug Purposes
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=7000)
