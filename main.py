@@ -1,10 +1,11 @@
 import uuid
 import uvicorn
 
+from html import escape, unescape
 from SQL import SQL #Temp meassure
+from DataCiteMetadataREST import DataCiteMetadataREST
 from typing import Optional
 from fastapi import FastAPI
-from pydantic import BaseModel
 from Models.DOI import DOI
 
 app = FastAPI()
@@ -36,76 +37,57 @@ async def resolve(DOI: str):
     return { "Result": DOI }
 
 
-@app.get('/')
-def home():
-    return {"Status": "Home!"}
-
-
 #Here we will keep all our get requests to accomadate the legacy dependencies
+@app.get("/regdoi")
+async def regdoi(data: Optional[str] = "", view: Optional[str] = "", doi: Optional[str] = ""):
 
-@app.get('/getdoi/')
-def regdoi(doi: Optional[str] = ""):
+    if doi == "" | data == "" | view == "":
+        return { "Error" : "All 3 parameters require values"}
 
-    #return {"TEst":doi}
-    # DOI_Entity.DOI = DOI_Post.DOI
-    # DOI_Entity.UserName = "Z10"
-    # DOI_Entity.PortalName = "oa"
-    # DOI_Entity.View = DOI_Post.View
-    # DOI_Entity.GUID = uuid.uuid4()
+    #Convert the `Data` to XML
+    xml = data
 
-    #Check if DOI exists
-    #DOI_Exists = session.query(DOI_Entity).filter_by(DOI=DOI_Post.DOI).one()
-    DOI_Exists = SQL().get_by("doi", doi)[0] #Set the rec ID
+    guid = SQL().add_doi_to_db(doi, "Z10", "oa", xml, view).guid
+    url = resolveURL + escape(guid)
 
-    return {"doiid": DOI_Exists}
+    client = DataCiteMetadataREST("NRF.TEST", "D@taC!te", "https://mds.test.datacite.org")
+    metadata = client.set_metadata(xml)
+    setDOI = client.set_doi(doi, url)
 
-    if (DOI_Exists == 0):
-        #Insert a new DOI
-        '''
-        Response.Write("add doi<br>");
-        SQL().insert("TblDOI");
-        id = GetDOIID(con, doi);
-        '''
-        # session.add(DOI_Post)
-        # session.commit()
-        # inserted_Id = session.query(DOI_Entity).filter_by(DOI=DOI_Post.DOI).one()
+    return { 
+        "URL" : client.uri,
+        "Username" : client.username,
+        "Password" : client.password,
+        "Post Metadata" : metadata,
+        "Update DOI URL" : setDOI
+    }
 
-        inserted_Id = SQL().insert_doi(DOI_Post)
-    else:
-        #Update an existing DOI
-        '''
-        Response.Write("edit doi<br>");
-        SQL().where("fDOIID", id);
-        SQL().edit("TblDOI");
-        '''
-        # session._update_impl(DOI_Post)
-        # session.commit()
-        # inserted_Id = session.query(DOI_Entity).filter_by(DOI=DOI_Post.DOI).one()
-        inserted_Id = SQL().update_doi(DOI_Post)
+
+@app.get("/get")
+async def get(GUID: Optional[uuid.UUID] = ""):
+
+    result = SQL().get_by("guid", GUID)
     
-    #Select the relevant GUID by the DOI_Exists Id
-    '''
-    SQL().add("fDOIID", id);
-    guid = SQL().select("TblDOI", "fGUID").ToString();
-    '''
+    DOI_Return = DOI(
+        doiID = result[0],
+        doi = result[1],
+        user_name = result[2],
+        portal_name = result[3],
+        xml = result[4],
+        view = result[5],
+        guid = result[6]
+    )
 
-    #session.query(DOI_Entity).filter_by(key=institution.parent_key).one() if institution.parent_key else None
-    return {"GUID" : SQL().get_by("pkID", inserted_Id)}
+    return {"View": DOI_Return.view}
 
 
-@app .get("/get/{GUID}")
-async def get_uuid(GUID: uuid.UUID):
-    DOI_Exists = session.query(DOI_Entity).filter_by(DOI=DOI_Post.DOI).one()
+@app.get("/resolve")
+async def resolve(uuid: Optional[uuid.UUID] = ""):
 
-    '''
-    
-            guid = new Guid().ToString();
-            String query = "SELECT * FROM TblDOI WHERE fGUID = '" + guid.Replace("'", "''") + "'";
-            view = set["fView"].ToString();
-    '''
-
-    view_URL = session.query(DOI_Entity).filter_by(UUID=GUID).one()
-    return view_URL 
+    if uuid == "":
+        return {"Error" : "No UUID was provided"}
+    else
+        return {"UUID" : uuid}
 
 
 #For Debug Purposes
