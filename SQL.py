@@ -5,6 +5,7 @@ import uuid
 from Models.DOI import DOI
 
 class SQL:
+    global is_postgres
     global server
     global database
     global username
@@ -13,13 +14,22 @@ class SQL:
     global cursor
 
 
+
     def __init__(self):
-        if False:   #insert a environment variable check here 
-            self.cnxn = psycopg2.connect(user = username, #"sysadmin",
-                                        password = password, # "pynative@#29",
-                                        host = server, #"127.0.0.1",
-                                        port = "5432",
-                                        database = database) #"postgres_db")
+        #set is_postgres variable 
+        is_postgres = True
+
+        if is_postgres:   #insert a environment variable check here 
+            server = '127.0.0.1' 
+            database = 'Resolver' 
+            username = 'LanceTest' 
+            password = 'asdTest123' 
+
+            cnxn = psycopg2.connect(user = username, #"sysadmin",
+                                    password = password, # "pynative@#29",
+                                    host = server, #"127.0.0.1",
+                                    port = "5432",
+                                    database = database) #"postgres_db")
 
         else:
             server = 'VEGA\SQLEXPRESS' 
@@ -30,6 +40,7 @@ class SQL:
             cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
 
         cursor = cnxn.cursor()
+        self.is_postgres = is_postgres
         self.cursor = cursor
         self.cnxn = cnxn
 
@@ -43,21 +54,32 @@ class SQL:
     def get_by(self, type, value):
         #self.cursor.execute("SELECT TOP 1 * FROM TblDOI WHERE fDOI = '?'", asd)
         if type == "doi":
-            self.cursor.execute("SELECT TOP 1 * FROM TblDOI WHERE fDOI = '" + value + "'") 
+            if self.is_postgres:
+                self.cursor.execute("SELECT * FROM \"TblDOI\" WHERE \"fDOI\" = '" + value + "' limit 1")
+            else:
+                self.cursor.execute("SELECT TOP 1 * FROM TblDOI WHERE fDOI = '" + value + "'")
+
             result = self.cursor.fetchone()
             if result:
                 return result
             else:
                 return [0]
         elif type == "guid":
-            self.cursor.execute("SELECT TOP 1 * FROM TblDOI WHERE fGUID = '" + value + "'") 
+            if self.is_postgres:
+                self.cursor.execute("SELECT * FROM \"TblDOI\" WHERE \"fGUID\" = '" + str(value) + "' limit 1")
+            else:
+                self.cursor.execute("SELECT TOP 1 * FROM TblDOI WHERE fGUID = " + value) 
+
             result = self.cursor.fetchone()
             if result:
                 return result
             else:
                 return [0]
         elif type == "pkID":
-            self.cursor.execute("SELECT TOP 1 * FROM TblDOI WHERE fDOIID = '" + value + "'") 
+            if self.is_postgres:
+                self.cursor.execute("SELECT * FROM \"TblDOI\" WHERE \"fDOIID\" = '" + str(value) + "' limit 1") 
+            else:
+                self.cursor.execute("SELECT TOP 1 * FROM TblDOI WHERE fDOIID = '" + value + "'") 
             result = self.cursor.fetchone()
             if result:
                 return result

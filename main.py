@@ -86,7 +86,7 @@ async def resolve(uuid: Optional[uuid.UUID] = ""):
 
     if uuid == "":
         return {"Error" : "No UUID was provided"}
-    else
+    else:
         return {"UUID" : uuid}
 
 
