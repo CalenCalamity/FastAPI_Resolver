@@ -7,6 +7,7 @@ from DataCiteMetadataREST import DataCiteMetadataREST
 from typing import Optional
 from fastapi import FastAPI
 from Models.DOI import DOI
+from Models.Reg_DOI import Reg_DOI
 
 app = FastAPI()
  
@@ -23,18 +24,33 @@ async def create_institution(DOI_Post: DOI):
 
 
 @app.post('/reg_doi')
-async def register_doi(DOI: str):
-    return { "Result": DOI }
+async def register_doi(Post_Data: Reg_DOI):
+    #Convert the `Data` to XML
+    xml = Post_Data.data
 
+    guid = SQL().add_doi_to_db(Post_Data.doi, "Z10", "oa", Post_Data.xml, Post_Data.view).guid
+    url = resolveURL + escape(Post_Data.guid)
 
-@app.post('/reg_doi_xml')
-async def register_doi_xml(DOI: str):
-    return { "Result": DOI }
+    client = DataCiteMetadataREST("NRF.TEST", "D@taC!te", "https://mds.test.datacite.org")
+    metadata = client.set_metadata(Post_Data.xml)
+    setDOI = client.set_doi(Post_Data.doi, url)
+
+    return { 
+        "URL" : client.uri,
+        "Username" : client.username,
+        "Password" : client.password,
+        "Post Metadata" : metadata,
+        "Update DOI URL" : setDOI
+    }
 
 
 @app.post('/resolve')
-async def resolve(DOI: str):
-    return { "Result": DOI }
+async def resolve(UUID: Optional[uuid.UUID]):
+    if UUID == "":
+        return {"Error" : "No UUID was provided"}
+    else:
+        return {"UUID" : UUID}
+
 
 
 #Here we will keep all our get requests to accomadate the legacy dependencies
@@ -82,7 +98,7 @@ async def get(GUID: Optional[uuid.UUID] = ""):
 
 
 @app.get("/resolve")
-async def resolve(uuid: Optional[uuid.UUID] = ""):
+async def resolve_legacy(uuid: Optional[uuid.UUID] = ""):
 
     if uuid == "":
         return {"Error" : "No UUID was provided"}
