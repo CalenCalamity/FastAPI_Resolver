@@ -39,21 +39,6 @@ def test_update_item():
     assert sql_ret[1] == '10.5438/0012'
 
 
-def test_register_doi():       #Commented till DataCite issues are solved
-  response = client.post("/reg_doi", json={
-    "data": "<resource xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://datacite.org/schema/kernel-4\" xsi:schemaLocation=\"http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd\"><identifier identifierType=\"DOI\">10.5438/0012</identifier><creators><creator><creatorName nameType=\"Personal\">Test, Example</creatorName><givenName>Example</givenName><familyName>Example</familyName></creator></creators><titles><title>Example</title></titles><publisher>DataCite</publisher><publicationYear>2020</publicationYear><resourceType resourceTypeGeneral=\"Dataset\"/><sizes/><formats/><version/></resource>",
-    "view": "www.google.com",
-    "doi": "10.5438/0012"})
-  
-  assert SQL().get_by('doi', '10.5438/0012') is not None
-  
-  assert response['URL'] == "https://test.datacite.org/mds"
-  assert response['Username'] == "NRF.TEST"  
-  assert response['Password'] == "D@taC!te"
-
-  assert response.status_code == 200
-
-
 def test_resolve():
   guid = "98f44ff4-575c-4640-b6a5-ee6101c844a0"
   
@@ -74,21 +59,6 @@ def test_resolve():
 
 
 #Tests for legacy endpoints
-# def test_regdoi_legacy():       #Commented till DataCite issues are solved
-#   response = client.get("/regdoi.aspx", json={
-#     "data": "<xml>Test XML<xml>",
-#     "view": "www.google.com",
-#     "doi": "pytest_doi_new"})
-  
-#   #assert SQL().get_by('doi', 'pytest_doi_new') is not None
-  
-#   assert response['URL'] == "https://test.datacite.org/mds"
-#   assert response['Username'] == "NRF.TEST"
-#   assert response['Password'] == "D@taC!te"
-
-#   assert response.status_code == 200
-
-
 def test_get_legacy():
   response = client.get('/get.aspx?GUID=98f44ff4-575c-4640-b6a5-ee6101c844a0')
   

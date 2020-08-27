@@ -18,7 +18,6 @@ setup(
         'sqlalchemy',
         'python-dotenv',
         'uvicorn',
-        'requests', #For the DataCiteMetadata class
         'psycopg2',
         'pytest'
     ],

@@ -20,11 +20,11 @@ class SQL:
         username = 'postgres' 
         password = 'asdTest123' 
 
-        cnxn = psycopg2.connect(user = username, #"sysadmin",
-                                password = password, # "pynative@#29",
-                                host = server, #"127.0.0.1",
+        cnxn = psycopg2.connect(user = username,
+                                password = password,
+                                host = server,
                                 port = "5432",
-                                database = database) #"postgres_db")
+                                database = database)
 
         cursor = cnxn.cursor()
         self.cursor = cursor
@@ -32,13 +32,11 @@ class SQL:
 
 
     def run_raw_sql(self, query):
-        #Execute the SQL
         self.cursor.execute(query)
         return self.cursor.fetchone()
 
 
     def get_by(self, type, value):
-        #self.cursor.execute("SELECT TOP 1 * FROM tbldoi WHERE fDOI = '?'", asd)
         if type == "doi":
             self.cursor.execute("SELECT * FROM \"tbldoi\" WHERE \"fDOI\" = '" + value + "' limit 1")
 
@@ -66,15 +64,12 @@ class SQL:
 
 
     def insert_doi(self, DOI_Post):
-        # DOI_Entity.GUID = uuid.uuid4()
         if DOI_Post.guid == "":
             DOI_Post.guid == uuid.uuid4()
         elif not self.is_valid_uuid(DOI_Post.guid):
             return ["Error, invalid GUID"]
 
         self.cursor.execute(f"""INSERT INTO \"tbldoi\" (\"fDOI\", \"fUserName\", \"fPortalName\", \"fXML\", \"fView\", \"fGUID\") VALUES (\'{DOI_Post.doi}\', \'Z10\', \'oa\', \'{DOI_Post.xml}\', \'{DOI_Post.view}\', \'{str(DOI_Post.guid)}\')""")
-                        #DOI_Post.doi, "Z10", "oa", DOI_Post.xml, DOI_Post.view,str(DOI_Post.guid))
-            
         self.cnxn.commit()
 
         result = self.get_by("guid", DOI_Post.guid)
@@ -86,8 +81,7 @@ class SQL:
             portal_name = result[3],
             xml = result[4],
             view = result[5],
-            guid = result[6]
-        )
+            guid = result[6])
 
         if result:
             return DOI_Return
@@ -115,7 +109,6 @@ class SQL:
 
         if result:
             return DOI_Return
-            #return result
         else:
             return ["Error has occured"]
 
@@ -179,8 +172,6 @@ class SQL:
         try:
             val = uuid.UUID(uuid_to_test)
         except ValueError:
-            # If it's a value error, then the string 
-            # is not a valid hex code for a UUID.
             return False
 
         return True
